@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Warden Dashboard</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f4f6f8; }
+        h2,h3 { color:#333; }
+        .box { background:#fff; padding:15px; margin-bottom:20px; border-radius:6px; box-shadow:0 0 5px #ccc; }
+        table { width:100%; border-collapse: collapse; margin-top:10px; }
+        th, td { border:1px solid #ddd; padding:8px; text-align:left; }
+        button { padding:6px 12px; background:#2196F3; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+        input, select { padding:6px; width:200px; margin:5px 0; }
+        img { width:120px; margin:5px; border-radius:4px; }
+    </style>
+</head>
+<body>
+
+<h2>👮 Warden Dashboard - {{ session.college }}</h2>
+<a href="/logout">Logout</a>
+<hr>
+
+<!-- ================= ADD HOSTEL ================= -->
+<div class="box">
+    <h3>➕ Add Hostel</h3>
+    <form method="POST" action="/warden/add_hostel">
+        <input type="text" name="hostel_name" placeholder="Hostel Name" required>
+        <input type="number" name="total_rooms" placeholder="Total Rooms" required>
+        <button type="submit">Add Hostel</button>
+    </form>
+</div>
+
+<!-- ================= TAKE ATTENDANCE ================= -->
+<div class="box">
+    <h3>📅 Mark Attendance</h3>
+    <form method="POST" action="/warden/attendance">
+        <label>Select Student:</label>
+        <select name="student_id" required>
+            {% for s in students %}
+                <option value="{{ s.id }}">{{ s.username }}</option>
+            {% endfor %}
+        </select><br>
+        <label>Date:</label>
+        <input type="date" name="date" required><br>
+        <label>Status:</label>
+        <select name="status" required>
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+        </select><br>
+        <button type="submit">Mark Attendance</button>
+    </form>
+
+    <h4>Attendance Records</h4>
+    <table>
+        <tr><th>Student</th><th>Date</th><th>Status</th></tr>
+        {% for a in attendance %}
+            <tr>
+                <td>{{ a.username }}</td>
+                <td>{{ a.date }}</td>
+                <td>{{ a.status }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- ================= UPLOAD ROOM PHOTO ================= -->
+<div class="box">
+    <h3>🖼️ Upload Room Photo</h3>
+    <form method="POST" enctype="multipart/form-data" action="/warden/photo">
+        <label>Select Hostel:</label>
+        <select name="hostel_id" required>
+            {% for h in hostels %}
+                <option value="{{ h.id }}">{{ h.name }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label>Select Room:</label>
+        <select name="room_id" required>
+            {% for r in rooms %}
+                <option value="{{ r.id }}">{{ r.hostel_name }} - {{ r.room_number }}</option>
+            {% endfor %}
+        </select><br>
+
+        <input type="file" name="photo" accept="image/*" required>
+        <button type="submit">Upload Photo</button>
+    </form>
+
+    <h4>Uploaded Photos</h4>
+    {% for p in photos %}
+        <div style="display:inline-block; text-align:center;">
+            <img src="/static/uploads/{{ p.filename }}">
+            <br>
+            <small>{{ p.hostel_name }} - {{ p.room_number }}</small>
+        </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>

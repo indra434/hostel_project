@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f8;
+            padding: 20px;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        .box {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            box-shadow: 0 0 5px #ccc;
+        }
+        img {
+            width: 180px;
+            margin: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 6px 12px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .status {
+            font-weight: bold;
+        }
+        .room-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>🎓 Welcome Student</h2>
+<a href="/logout">Logout</a>
+
+<hr>
+
+<!-- ================= AVAILABLE ROOMS ================= -->
+<div class="box">
+    <h3>🛏️ Available Rooms</h3>
+
+    {% if rooms %}
+        {% for r in rooms %}
+            <div class="room-box">
+                <b>Hostel:</b> {{ r.hostel_name }} <br>
+                <b>Room Number:</b> {{ r.room_number }} <br><br>
+
+                <a href="/student/apply_room/{{ r.id }}">
+                    <button>Apply Room</button>
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No rooms available right now</p>
+    {% endif %}
+</div>
+
+<!-- ================= ATTENDANCE ================= -->
+<div class="box">
+    <h3>📅 Your Attendance</h3>
+
+    {% if attendance %}
+        {% for a in attendance %}
+            <p>
+                {{ a.date }} :
+                <span class="status">{{ a.status }}</span>
+            </p>
+        {% endfor %}
+    {% else %}
+        <p>No attendance records yet</p>
+    {% endif %}
+</div>
+
+<!-- ================= ROOM ALLOCATION ================= -->
+<div class="box">
+    <h3>🛌 Your Room Allocation</h3>
+
+    {% if room %}
+        <p>
+            <b>Hostel:</b> {{ room.hostel_name }} <br>
+            <b>Room Number:</b> {{ room.room_number }}
+        </p>
+    {% else %}
+        <p>Room not allocated yet</p>
+    {% endif %}
+</div>
+
+<!-- ================= ROOM PHOTOS ================= -->
+<div class="box">
+    <h3>🖼️ Room Photos</h3>
+
+    {% if photos %}
+        {% for p in photos %}
+            <div style="display:inline-block;text-align:center;">
+                <img src="/static/uploads/{{ p.filename }}">
+                <br>
+                <small>
+                    Hostel: {{ p.hostel_name }}<br>
+                    Room: {{ p.room_number }}
+                </small>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No room photos uploaded yet</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
