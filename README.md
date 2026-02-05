@@ -1,66 +1,71 @@
+🏗️ Project Overview
+This is a web-based application designed to digitize hostel operations. It connects Admins, Principals, Wardens, Students, and Guardians on a single platform to manage registrations, room allocations, attendance, and facility monitoring efficiently.
 
-AIM:
-This project is about creating a  website to manage hostel life. 
-It will help with things like registering students, giving them rooms, 
-keeping track of attendance, 
-storing room photos,
-and making sure approvals go smoothly between the Admin, Principal, Warden, and Students.
+Tech Stack:
 
-Backend (Server Side)
-🔹 Python
-Main language of this project
-Handles:
-Login & registration
-Role management (Admin, Principal, Warden, Student)
-Database operations
-Business logic
-🔹 Flask (Python Framework)
-Web framework used to connect frontend + backend
-Handles:
-URLs (/login, /student, /warden, etc.)
-Routing
-Sessions & authentication
-Rendering HTML pages
-🎨 Frontend (Client Side)
-🔹 HTML
-Used to create pages like:
-login.html
-student_dashboard.html
-warden_dashboard.html
-principal_dashboard.html
-🔹 CSS
-Used for:
-Styling pages
-Layout
-Colors, buttons, cards, etc.
-Written inside <style> tags or static files
-🔹 Jinja2 (Template Engine)
-Used inside HTML
-Connects Python data to HTML
-Examples:
-Copy code
-Html
-{{ username }}
-{% for room in rooms %}
-{% if attendance %}
-This is how Flask sends data to HTML
-🗄️ Database
-🔹 SQLite
-Stores:
-Users
-Hostels
-Rooms
-Attendance
-Applications
-File-based database (database.db)
-No need to buy anything 💰
-Works locally & on deployment (with limits)
-📦 Other Important Technologies
-🔹 SQL
-Used to:
-Create tables (database.sql)
-Insert, update, fetch data
-Example:
-Copy code
-Sql
-SELECT * FROM users WHERE role='student';
+Backend: Python (Flask)
+Database: SQLite
+Frontend: HTML, CSS (Glassmorphism design), Jinja2 Templating
+Security: Password Hashing (werkzeug), Session Management, OTP Email Verification
+⚙️ Working Rules & User Roles
+The system operates on a hierarchy where higher-level users approve lower-level users. Here is the breakdown of each role:
+
+1. 👑 Admin (Super User)
+Credentials: Pre-configured (Username: admin, Password:admin123).
+Role: The highest authority.
+Workflow:
+Logs in to the Admin Dashboard.
+Views a list of Principals who have registered but are not yet approved.
+Approves Principals, effectively registering a new College in the system.
+Can view a list of all registered colleges and their principals.
+2. 🎓 Principal (College Head)
+Registration: Registers with a College Name. Must be approved by the Admin.
+Role: Manages their specific college's users and approvals.
+Workflow:
+User Approval: Sees a list of pending Students and Wardens who registered under their college name. They must approve them before they can log in.
+Room Allocation: Receives notifications when a student applies for a specific room. The Principal approves the request, and the system automatically updates the room's occupancy.
+Dashboard: Views total student counts and pending applications.
+3. 👮 Warden (Hostel Manager)
+Registration: Registers under a specific college. Must be approved by the Principal.
+Role: Manages the physical hostel, rooms, and discipline.
+Workflow:
+Hostel Creation: Adds new hostels and defines the total number of rooms. The system automatically generates room numbers (e.g., R1, R2).
+Room Management: Updates room details like Capacity, Facilities (AC, Fan, WiFi), and Damage Reports.
+Attendance: Marks daily attendance (Present/Absent) for students.
+Photos: Uploads photos of specific rooms for students to see.
+4. 🎒 Student (Resident)
+Registration: Registers with personal details, College Name, and uploads an ID Card. Must be approved by the Principal.
+Role: End-user looking for accommodation.
+Workflow:
+Browse Rooms: Views available rooms in their college's hostels. They can see occupancy bars (e.g., 2/3 full), facilities, and condition/damage reports.
+Apply: Clicks "Apply" for a specific room.
+Status: Once approved by the Principal, they can see their allocated room details on their dashboard.
+Attendance: Views their own attendance history.
+5. 👤 Guardian (Parent)
+Registration: Registers to track their ward.
+Role: Observer.
+Workflow:
+Logs in to view the Attendance Record of their student to ensure they are present in the hostel.
+🔄 Key System Processes
+The Approval Chain:
+
+User Registers -> Status is Pending (Cannot Login).
+Admin approves Principal.
+Principal approves Warden & Student.
+Status becomes Approved -> User can Login.
+Room Allocation Logic:
+
+A student applies for Room A.
+Principal approves.
+System checks: Is Occupied < Capacity?
+If yes: Occupied count + 1, Student assigned to Room A.
+If no: System prevents allocation (Room Full).
+Forgot Password:
+
+Uses OTP (One Time Password) verification via Email.
+OTP is valid for 5 minutes.
+Data Isolation:
+
+Principals, Wardens, and Students can only see data related to their specific College. They cannot see data from other colleges registered in the system.
+Generated by Gemini 3 Pro Preview
+Prompts to try
