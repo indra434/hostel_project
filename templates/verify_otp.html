@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify OTP</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; }
+        .box {
+            width: 350px;
+            margin: 100px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 0 10px #aaa;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>OTP Verification</h2>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST" action="/verify_otp">
+        <input type="text" name="otp"
+               placeholder="Enter 6-digit OTP" required>
+
+        <button type="submit">Verify OTP</button>
+    </form>
+
+    <p style="font-size: 13px; margin-top: 10px;">
+        OTP is valid for 5 minutes.
+    </p>
+</div>
+
+</body>
+</html>

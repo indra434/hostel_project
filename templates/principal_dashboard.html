@@ -1,34 +1,125 @@
-<h2>Principal Dashboard ({{ session.college }})</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Principal Dashboard</title>
 
-<h3>Pending Students/Wardens</h3>
-{% for u in students %}
-<div style="border:1px solid #ccc; padding:8px; margin:5px;">
-    <b>{{ u.username }} ({{ u.role }})</b><br>
-    {% if u.id_card %}
-        <a href="/static/uploads/{{ u.id_card }}" target="_blank">View ID Card</a><br>
-    {% endif %}
-    <a href="/principal/approve_user/{{ u.id }}">
-        <button style="background:green;">Approve</button>
-    </a>
-    <a href="/principal/reject_user/{{ u.id }}">
-        <button style="background:red;">Reject</button>
-    </a>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url("{{ url_for('static', filename='images/image.png') }}") no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 8px;
+            width: 420px;
+        }
+
+        h2, h3 {
+            text-align: center;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin-top: 6px;
+            cursor: pointer;
+            border: none;
+            color: white;
+        }
+
+        .approve {
+            background: green;
+        }
+
+        .reject {
+            background: red;
+        }
+
+        .box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .logout {
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Principal Dashboard ({{ session.college }})</h2>
+
+    <hr>
+
+    <!-- ================= PENDING USERS ================= -->
+    <h3>Pending Students / Wardens</h3>
+
+    {% for u in students %}
+        <div class="box">
+            <b>{{ u.username }} ({{ u.role }})</b><br>
+
+            {% if u.id_card %}
+                <a href="/static/uploads/{{ u.id_card }}" target="_blank">
+                    View ID Card
+                </a><br>
+            {% endif %}
+
+            <a href="/principal/approve_user/{{ u.id }}">
+                <button class="approve">Approve</button>
+            </a>
+
+            <a href="/principal/reject_user/{{ u.id }}">
+                <button class="reject">Reject</button>
+            </a>
+        </div>
+    {% else %}
+        <p style="text-align:center;">No pending user requests</p>
+    {% endfor %}
+
+    <hr>
+
+    <!-- ================= HOSTEL APPLICATIONS ================= -->
+    <h3>Pending Hostel Applications</h3>
+
+    {% for a in apps %}
+        <div class="box">
+            Student: {{ a.username }} <br>
+            Hostel: {{ a.name }} <br>
+
+            <a href="/principal/approve_hostel/{{ a.id }}">
+                <button class="approve">Approve</button>
+            </a>
+        </div>
+    {% else %}
+        <p style="text-align:center;">No pending hostel requests</p>
+    {% endfor %}
+
+    <hr>
+
+    <!-- ================= LOGOUT ================= -->
+    <div class="logout">
+        <a href="/logout">Logout</a>
+    </div>
+
 </div>
-{% else %}
-<p>No pending requests</p>
-{% endfor %}
 
-<hr>
-
-<h3>Pending Hostel Applications</h3>
-{% for a in apps %}
-<div style="border:1px solid #ccc; padding:8px; margin:5px;">
-    Student: {{ a.username }} <br>
-    Hostel: {{ a.name }} <br>
-    <a href="/principal/approve_hostel/{{ a.id }}">
-        <button style="background:green;">Approve</button>
-    </a>
-</div>
-{% else %}
-<p>No pending hostel requests</p>
-{% endfor %}
+</body>
+</html>

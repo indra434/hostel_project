@@ -3,34 +3,77 @@
 <head>
     <title>{{ role.capitalize() }} Registration</title>
     <style>
-        body { font-family: Arial; padding: 50px; max-width: 400px; margin: auto; background: #f4f4f4; }
-        input, button { width: 100%; padding: 12px; margin: 10px 0; }
-        button { background: #2196F3; color: white; border: none; cursor: pointer; }
-        .flash { padding: 10px; margin: 10px 0; border-radius: 5px; }
-        .error { background: #f8d7da; color: #721c24; }
-        .success { background: #d4edda; color: #155724; }
+        body {
+            font-family: Arial;
+            padding: 50px;
+            max-width: 420px;
+            margin: auto;
+            background: #f4f4f4;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .flash {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
     </style>
 </head>
 <body>
+
 <h2>{{ role.capitalize() }} Registration</h2>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     {% for category, message in messages %}
-      <div class="flash {{category}}">{{message}}</div>
+      <div class="flash {{ category }}">{{ message }}</div>
     {% endfor %}
   {% endif %}
 {% endwith %}
 
-<form method="POST">
+<!-- IMPORTANT: enctype added for file upload -->
+<form method="POST" enctype="multipart/form-data">
+
     <input type="text" name="username" placeholder="Username" required>
+
+    <input type="email" name="email" placeholder="Email address" required>
+
+    <input type="text" name="phone" placeholder="Phone number" required>
+
     <input type="password" name="password" placeholder="Password" required>
-    {% if role in ['student', 'principal'] %}
-    <input type="text" name="college" placeholder="College" required>
+
+    {% if role in ['student', 'principal', 'warden'] %}
+        <input type="text" name="college" placeholder="College name" required>
     {% endif %}
-    <button>Register</button>
+
+    {% if role == 'student' %}
+        <label>Upload ID Card</label>
+        <input type="file" name="id_card" accept="image/*" required>
+    {% endif %}
+
+    <button type="submit">Register</button>
 </form>
 
-<p><a href="{{ url_for('login') }}">Back to Login</a></p>
+<p>
+    <a href="{{ url_for('login') }}">Back to Login</a>
+</p>
+
 </body>
 </html>

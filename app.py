@@ -1,18 +1,23 @@
 from flask import Flask, render_template, request, redirect, session, flash
-import sqlite3, os, uuid
+import sqlite3
+import os
+import uuid
+from sqlite3 import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-
+import smtplib
+from email.message import EmailMessage
+import time
 app = Flask(__name__)
 app.secret_key = "hostel_secret"
-
 UPLOAD_FOLDER = "static/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ---------------- DB ----------------
+# database
 def get_db():
     db = sqlite3.connect("database.db")
     db.row_factory = sqlite3.Row
+    db.execute("PRAGMA foreign_keys = ON")
     return db
 
 def init_db():
@@ -61,12 +66,14 @@ def logout():
     return redirect("/")
 
 # ---------------- REGISTER ----------------
-@app.route("/register/<role>", methods=["GET","POST"])
+@app.route("/register/<role>", methods=["GET", "POST"])
 def register(role):
     if request.method == "POST":
         username = request.form["username"]
         password = generate_password_hash(request.form["password"])
         college = request.form.get("college")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
 
         id_card = None
         if role == "student":
@@ -75,18 +82,43 @@ def register(role):
             file.save(os.path.join(UPLOAD_FOLDER, id_card))
 
         db = get_db()
-        db.execute("""
-            INSERT INTO users(username,password,role,college,id_card)
-            VALUES (?,?,?,?,?)
-        """, (username, password, role, college, id_card))
-        db.commit()
-        db.close()
+        try:
+            db.execute("""
+                INSERT INTO users
+                (username, password, email, phone, role, college, id_card, approved)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+            """, (
+                username,
+                password,
+                email,
+                phone,
+                role,
+                college,
+                id_card
+            ))
+            db.commit()
 
-        flash("Registered successfully. Wait for approval.")
+        except IntegrityError as e:
+            db.close()
+            flash("Username / Email / Phone already exists")
+            return redirect(f"/register/{role}")
+
+        db.close()
+        flash("Registered successfully. Wait for principal approval.")
         return redirect("/")
 
-    return render_template(f"{role}_register.html")
+    return render_template(f"{role}_register.html", role=role)
 
+# ----------------for debug ----------------
+@app.route("/debug_users")
+def debug_users():
+    db = get_db()
+    users = db.execute("""
+        SELECT id, username, role, college, approved
+        FROM users
+    """).fetchall()
+    db.close()
+    return "<br>".join([str(dict(u)) for u in users])
 # ---------------- ADMIN ----------------
 @app.route("/admin")
 def admin():
@@ -111,6 +143,7 @@ def admin_approve(uid):
     db.close()
     return redirect("/admin")
 
+
 # ---------------- PRINCIPAL DASHBOARD ----------------
 @app.route("/principal")
 def principal():
@@ -121,11 +154,10 @@ def principal():
 
     # Pending students & wardens of this college
     pending_users = db.execute("""
-        SELECT * FROM users
-        WHERE role IN ('student','warden')
-        AND approved=0
-        AND college=?
-    """, (session["college"],)).fetchall()
+    SELECT * FROM users
+    WHERE role IN ('student','warden')
+    AND approved=0
+""").fetchall()
 
     # Pending hostel applications (students only)
     applications = db.execute("""
@@ -408,7 +440,95 @@ def warden_attendance():
     flash("Attendance marked!")
     return redirect("/warden")
 
+# ---------------- Forgot password ----------------
+# ---------------- Forgot password ----------------
+import random
 
+@app.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        contact = request.form.get("contact", "").strip()  # ✅ IMPORTANT
+
+        print("CONTACT ENTERED:", repr(contact))  # ✅ DEBUG
+
+        if not contact:
+            return render_template(
+                "forgot_password.html",
+                error="Please enter email or mobile number"
+            )
+
+        db = get_db()
+        user = db.execute("""
+            SELECT * FROM users
+            WHERE email = ? OR phone = ?
+        """, (contact, contact)).fetchone()
+
+        print("USER FOUND:", user)  # ✅ DEBUG
+
+        if not user:
+            db.close()
+            return render_template(
+                "forgot_password.html",
+                error="No account found with this email or mobile number"
+            )
+
+        otp = random.randint(100000, 999999)
+
+        session["reset_otp"] = str(otp)
+        session["reset_uid"] = user["id"]
+        session["otp_time"] = time.time()
+
+        send_otp_email(user["email"], otp)
+
+        db.close()
+        return render_template("verify_otp.html")
+
+    return render_template("forgot_password.html")
+    
+# ---------------- OTP VERIFICATION ----------------
+@app.route("/verify_otp", methods=["POST"])
+def verify_otp():
+    entered_otp = request.form.get("otp")
+
+    # Safety: session missing
+    if "reset_otp" not in session or "otp_time" not in session:
+        flash("Session expired. Try again.")
+        return redirect("/forgot_password")
+
+    # OTP expiry check (5 minutes)
+    if time.time() - session["otp_time"] > 300:
+        session.clear()
+        flash("OTP expired. Please request again.")
+        return redirect("/forgot_password")
+
+    # Wrong OTP
+    if entered_otp != session["reset_otp"]:
+        return render_template(
+            "verify_otp.html",
+            error="Invalid OTP"
+        )
+
+    # Correct OTP
+    return redirect("/reset_password")
+# ----------------  for new password ----------------
+@app.route("/reset_password", methods=["GET","POST"])
+def reset_password():
+    if request.method == "POST":
+        hashed = generate_password_hash(request.form["password"])
+
+        db = get_db()
+        db.execute(
+            "UPDATE users SET password=? WHERE id=?",
+            (hashed, session["reset_uid"])
+        )
+        db.commit()
+        db.close()
+
+        session.clear()
+        flash("Password updated successfully")
+        return redirect("/")
+
+    return render_template("reset_password.html")
 # ---------------- UPLOAD ROOM PHOTO ----------------
 @app.route("/warden/photo", methods=["POST"])
 def warden_photo():
@@ -446,6 +566,25 @@ def warden_photo():
 
     db.close()
     return redirect("/warden")
+# for otp mail
+def send_otp_email(to_email, otp):
+    EMAIL_ADDRESS = "indrakumar3995@gmail.com"
+    EMAIL_PASSWORD = "vrcyysgxcnlyoztu"
+
+    msg = EmailMessage()
+    msg["Subject"] = "Hostel System - OTP Verification"
+    msg["From"] = EMAIL_ADDRESS
+    msg["To"] = to_email
+    msg.set_content(f"""
+Your OTP is: {otp}
+
+This OTP is valid for 5 minutes.
+Do not share it with anyone.
+""")
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        server.send_message(msg)
 # ---------------- RUN ----------------
 if __name__ == "__main__":
     init_db()
