@@ -1,31 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Guardian Registration</title>
     <style>
-        body {font-family: Arial; margin:50px auto; max-width:400px; background:white; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-        input, select, button {width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:5px; box-sizing:border-box;}
-        button {background:#2196F3; color:white; border:none; cursor:pointer; font-size:16px;}
-        .flash {padding:12px; margin:10px 0; border-radius:5px;}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8)), url("{{ url_for('static', filename='images/image.png') }}") no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
+            border-top: 5px solid #764ba2;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: 2px solid #eee;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 8px rgba(118, 75, 162, 0.2);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 15px;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(118, 75, 162, 0.6);
+        }
+
+        .flash {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background: #f8d7da;
+            color: #721c24;
+            font-size: 14px;
+        }
+
+        .login-link {
+            margin-top: 20px;
+            display: block;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-<h2>👤 Guardian Registration</h2>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-    {% for category, message in messages %}
-        <div class="flash {{category}}">{{message}}</div>
-    {% endfor %}
-{% endif %}
-{% endwith %}
+<div class="container">
+    <h2>👤 Guardian Registration</h2>
 
-<form method="POST">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <input type="text" name="college" placeholder="College">
-    <button>Register</button>
-</form>
-<p><a href="{{ url_for('login') }}">Back to Login</a></p>
+    <form method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="text" name="college" placeholder="College Name" required>
+        <button type="submit">Register</button>
+    </form>
+
+    <a href="{{ url_for('login') }}" class="login-link">Back to Login</a>
+</div>
+
 </body>
 </html>
