@@ -19,12 +19,18 @@
             background-size: 400% 400%;
             animation: gradientFlow 10s ease infinite;
             min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, rgba(33, 147, 176, 0.8), rgba(109, 213, 237, 0.8)), url("{{ url_for('static', filename='images/image.png') }}") no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
         }
+        
 
         /* 2. ENTRANCE ANIMATION FOR THE CARD */
         @keyframes slideUpFade {
@@ -75,6 +81,82 @@
         .button.is-link:hover {
             transform: scale(1.03);
             box-shadow: 0 10px 20px rgba(106, 17, 203, 0.3);
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
+            border-top: 5px solid #2193b0;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #2193b0, #6dd5ed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 25px;
+            border: 2px solid #eee;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #2193b0;
+            box-shadow: 0 0 8px rgba(33, 147, 176, 0.2);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #2193b0, #6dd5ed);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 15px;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(33, 147, 176, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 147, 176, 0.6);
+        }
+
+        .flash {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background: #f8d7da;
+            color: #721c24;
+            font-size: 14px;
+        }
+
+        .login-link {
+            margin-top: 20px;
+            display: block;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -121,6 +203,24 @@
         <p class="has-text-centered mt-4 is-size-7">
             Already registered? <a href="{{ url_for('login') }}" class="has-text-weight-bold">Sign In</a>
         </p>
+<div class="container">
+
+    <h2>Student Registration</h2>
+
+    <!-- ================= REGISTRATION FORM ================= -->
+    <form method="POST" enctype="multipart/form-data">
+        <input type="text" name="username" placeholder="Username" required>
+
+        <input type="password" name="password" placeholder="Password" required>
+
+        <input type="text" name="college" placeholder="College Name" required>
+        <input name="email" placeholder="Email" required>
+<input name="phone" placeholder="Mobile Number" required>
+
+        <!-- ID CARD -->
+        <input type="file" name="id_card" required>
+
+        <button type="submit">Register</button>
     </form>
 </div>
 

@@ -488,7 +488,7 @@ def warden_attendance():
 
     student_id = request.form["student_id"]
     date = request.form["date"]
-    status = request.form["status"]
+    status = request.form["status"].lower()
 
     db = get_db()
     db.execute("""
