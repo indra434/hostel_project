@@ -2,303 +2,155 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Student Dashboard</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DormSync | Student Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* 1. SYNCHRONIZED BACKGROUND ANIMATION */
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: url("{{ url_for('static', filename='images/image.png') }}") no-repeat center center fixed;
-            background-size: cover;
-            padding: 20px;
+            background: linear-gradient(-45deg, #4b6cb7, #182848, #6a11cb, #2575fc);
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
             min-height: 100vh;
-            color: #333;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        h2, h3 {
-            color: #2c3e50;
+        /* 2. ENTRANCE ANIMATION */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(5px);
-            padding: 25px;
-            margin-bottom: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        .dashboard-container {
+            animation: slideIn 0.7s ease-out forwards;
         }
 
-        img {
-            width: 180px;
-            height: 120px;
-            object-fit: cover;
-            margin: 8px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-
-        button, .apply-btn {
-            padding: 10px 15px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        button:hover, .apply-btn:hover {
-            background: #0056b3;
-        }
-
-        /* Room Grid */
-        .room-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 2rem;
         }
 
         .room-card {
-            background: #fff;
-            border: 1px solid #e1e4e8;
-            border-radius: 8px;
-            padding: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .room-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
         }
 
-        .room-header {
+        .welcome-title {
+            color: white;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .button.is-primary {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            border: none;
+            font-weight: 700;
+            border-radius: 10px;
+        }
+
+        .nav-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .room-number {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .hostel-name {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .info-row {
-            margin: 8px 0;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .occupancy-bar {
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-
-        .occupancy-fill {
-            height: 100%;
-            background: #28a745;
-        }
-
-        .full {
-            background: #dc3545;
-        }
-
-        .damage-alert {
-            background: #fff3cd;
-            color: #856404;
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 13px;
-            margin-top: 10px;
-            border: 1px solid #ffeeba;
-        }
-
-        .apply-btn {
-            width: 100%;
-            margin-top: 15px;
-            display: block;
-            text-align: center;
-            box-sizing: border-box;
-            text-decoration: none;
-        }
-
-        a {
-            color: #dc3545;
-            text-decoration: none;
-            font-weight: bold;
+            margin-bottom: 2rem;
         }
     </style>
 </head>
-
 <body>
 
-<h2>🎓 Welcome Student</h2>
-<a href="/logout" style="float:right;">Logout</a>
-
-<hr>
-
-<!-- ================= AVAILABLE ROOMS ================= -->
-<div class="box">
-    <h3>🛏️ Browse Rooms</h3>
-
-    {% if rooms %}
-    <div class="room-grid">
-        {% for r in rooms %}
-        <div class="room-card">
-
-            <div class="room-header">
-                <span class="room-number">{{ r.room_number }}</span>
-                <span class="hostel-name">{{ r.hostel_name }}</span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Occupancy:</span>
-                {{ r.occupied }} / {{ r.capacity }} Members
-            </div>
-
-            <div class="occupancy-bar">
-                {% set pct = ((r.occupied / r.capacity * 100) | round(2)) if r.capacity > 0 else 0 %}
-                <div class="occupancy-fill {% if r.occupied >= r.capacity %}full{% endif %}"
-                     style="width: {{ pct }}%;">
-                </div>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Facilities:</span>
-                {{ r.facilities }}
-            </div>
-
-            {% if r.damage and r.damage != 'None' %}
-                <div class="damage-alert">
-                    ⚠️ Condition: {{ r.damage }}
-                </div>
-            {% else %}
-                <div class="info-row" style="color:#28a745;">
-                    ✅ Condition: Good
-                </div>
-            {% endif %}
-
-            {% if r.occupied < r.capacity %} /r.capacity>
-                <a href="/student/apply_room/{{ r.id }}" class="apply-btn">Apply for this Room</a>
-            {% else %}
-                <button class="apply-btn" disabled style="background:#ccc; cursor:not-allowed;">
-                    Full
-                </button>
-            {% endif %}
-
-        </div>
-        {% endfor %}
+<div class="container dashboard-container">
+    
+    <div class="nav-header">
+        <h1 class="title is-2 welcome-title">
+            <span class="icon mr-2"><i class="fas fa-graduation-cap"></i></span>Welcome, Student
+        </h1>
+        <a href="{{ url_for('logout') }}" class="button is-danger is-light">
+            <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+            <span>Logout</span>
+        </a>
     </div>
-    {% else %}
-        <p>No rooms available right now</p>
-    {% endif %}
-</div>
 
-<!-- ================= ATTENDANCE ================= -->
-<div class="box">
-    <h3>📅 Your Attendance</h3>
-
-    {% if attendance %}
-        {% for a in attendance %}
-            <p>{{ a.date }} : <strong>{{ a.status }}</strong></p>
-        {% endfor %}
-    {% else %}
-        <p>No attendance records yet</p>
-    {% endif %}
-</div>
-
-<!-- ================= ROOM ALLOCATION ================= -->
-<div class="box">
-    <h3>🛌 Your Room Allocation</h3>
-
-    {% if room %}
-        <div class="room-card" style="max-width:400px;">
-            <div class="room-header">
-                <span class="room-number">{{ room.room_number }}</span>
-                <span class="hostel-name">{{ room.hostel_name }}</span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Facilities:</span>
-                {{ room.facilities }}
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Condition:</span>
-                {{ room.damage }}
+    <div class="glass-card">
+        <div class="columns is-vcentered mb-5">
+            <div class="column">
+                <h2 class="title is-4 has-text-dark">
+                    <span class="icon has-text-link mr-2"><i class="fas fa-search"></i></span>Browse Rooms
+                </h2>
             </div>
         </div>
-    {% else %}
-        <p>Room not allocated yet</p>
-    {% endif %}
-</div>
 
-<!-- ================= ROOM PHOTOS ================= -->
-<div class="box">
-    <h3>🖼️ Room Photos</h3>
+        <div class="columns is-multiline">
+            {% if rooms %}
+                {% for r in rooms %}
+                <div class="column is-4">
+                    <div class="room-card">
+                        <div>
+                            <div class="is-flex is-justify-content-between is-align-items-center mb-3">
+                                <span class="tag is-link is-light is-medium">Room {{ r.room_number }}</span>
+                                <span class="is-size-7 has-text-grey">{{ r.hostel_name }}</span>
+                            </div>
 
-    {% if photos %}
-        {% for p in photos %}
-            <div style="display:inline-block;text-align:center;">
-                <img src="/static/uploads/{{ p.filename }}" alt="Room Photo">
-                <br>
-                <small>
-                    Hostel: {{ p.hostel_name }}<br>
-                    Room: {{ p.room_number }}
-                </small>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No room photos uploaded yet</p>
-    {% endif %}
-</div>
-<div id="ai-bot-ui" style="position: fixed; bottom: 20px; right: 20px; width: 300px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); background: white; z-index: 1000; font-family: Arial, sans-serif;">
-    <div style="background: #007bff; color: white; padding: 12px; border-radius: 10px 10px 0 0; font-weight: bold; display: flex; justify-content: space-between;">
-        <span>DormSync AI Helper</span>
-        <small>Gemini 3 Flash</small>
+                            <p class="mb-2"><strong>Occupancy:</strong> {{ r.occupied }} / {{ r.capacity }} Members</p>
+                            <p class="mb-4"><strong>Facilities:</strong> <span class="has-text-grey">{{ r.facilities }}</span></p>
+
+                            <div class="notification is-light py-2 px-3 mb-4">
+                                {% if r.damage and r.damage != 'None' %}
+                                    <p class="is-size-7 has-text-warning-dark">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i> Condition: {{ r.damage }}
+                                    </p>
+                                {% else %}
+                                    <p class="is-size-7 has-text-success">
+                                        <i class="fas fa-check-circle mr-1"></i> Condition: Good
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if r.occupied < r.capacity %}
+                            <a href="{{ url_for('apply_room', room_id=r.id) }}" class="button is-primary is-fullwidth">
+                                <span>Apply for this Room</span>
+                            </a>
+                        {% else %}
+                            <button class="button is-static is-fullwidth">Full</button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="column is-12 has-text-centered py-6">
+                    <span class="icon is-large has-text-grey-light mb-3"><i class="fas fa-bed fa-3x"></i></span>
+                    <p class="is-size-5 has-text-grey">No rooms available right now. Check back later!</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
-    <div id="msg-box" style="height: 200px; overflow-y: auto; padding: 10px; font-size: 14px; background: #f9f9f9;"></div>
-    <div style="display: flex; padding: 5px; border-top: 1px solid #ddd;">
-        <input type="text" id="user-msg" placeholder="Ask about room status..." style="flex: 1; border: 1px solid #ccc; padding: 8px; border-radius: 5px; outline: none;">
-        <button onclick="askAI()" style="background: #007bff; color: white; border: none; padding: 8px 12px; margin-left: 5px; border-radius: 5px; cursor: pointer;">Send</button>
-    </div>
 </div>
 
-<script>
-async function askAI() {
-    const input = document.getElementById('user-msg');
-    const display = document.getElementById('msg-box');
-    const msg = input.value;
-    if (!msg) return;
-
-    display.innerHTML += `<div style="margin-bottom: 10px;"><b>You:</b> ${msg}</div>`;
-    input.value = '';
-
-    const res = await fetch('/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg })
-    });
-    const data = await res.json();
-    display.innerHTML += `<div style="margin-bottom: 10px; color: #444;"><b>AI:</b> ${data.response}</div>`;
-    display.scrollTop = display.scrollHeight;
-}
-</script>
 </body>
 </html>

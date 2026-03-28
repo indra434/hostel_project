@@ -1,171 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login</title>
-
-    <!-- External CSS (optional) -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DormSync | Secure Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Full page background */
+        /* 1. MATCHING MOTION BACKGROUND */
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: url("{{ url_for('static', filename='images/image.png') }}") no-repeat center center fixed;
-            background-size: cover;
-            height: 100vh;
-            margin: 0;
+            background: linear-gradient(-45deg, #4b6cb7, #182848, #6a11cb, #2575fc);
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0;
+            padding: 20px;
         }
 
-        /* Login box */
-        .login-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px;
+        /* 2. GLASS CARD */
+        .login-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(15px);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
             width: 100%;
-            max-width: 380px;
+            max-width: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .title { color: #1a2a6c; font-weight: 800; text-align: center; }
+
+        /* 3. SMOOTH HOVER BUTTONS FOR REGISTRATION */
+        .register-option {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid transparent;
             border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            animation: slideUp 0.6s ease-out;
-        }
-
-        /* Animation */
-        @keyframes slideUp {
-            from {
-                transform: translateY(40px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        input, button {
-            width: 100%;
             padding: 12px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 15px;
-            box-sizing: border-box;
-        }
-
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
+            text-align: center;
+            color: #4a4a4a;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #0056b3;
-        }
-
-        .flash {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        p {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-            color: #555;
-            line-height: 1.6;
-        }
-
-        a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .register-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .register-btn {
             display: block;
-            padding: 10px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
-            color: #333;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .register-btn:hover {
-            background: #e2e6ea;
-            border-color: #adb5bd;
             text-decoration: none;
         }
+
+        /* The "Smooth Move" Animation on Hover */
+        .register-option:hover {
+            transform: translateY(-8px);
+            background: white;
+            color: #6a11cb;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: #6a11cb;
+        }
+
+        .login-btn {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            border-radius: 12px;
+            font-weight: 700;
+            height: 3rem;
+            transition: 0.3s;
+        }
+
+        .login-btn:hover { transform: scale(1.02); }
     </style>
 </head>
-
 <body>
 
-<div class="login-box">
-
-    <h2>Login</h2>
+<div class="login-card">
+    <h1 class="title is-3 mb-5">Login</h1>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="flash {{ category }}">{{ message }}</div>
+          <div class="notification is-danger is-light py-2 px-3 mb-4 is-size-7">
+            {{ message }}
+          </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
 
-    <form method="POST">
-        <input name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
+    <form action="{{ url_for('login') }}" method="POST">
+        <div class="field">
+            <div class="control has-icons-left">
+                <input class="input is-medium" type="text" name="username" placeholder="Username" required style="border-radius: 10px;">
+                <span class="icon is-left"><i class="fas fa-user"></i></span>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="control has-icons-left">
+                <input class="input is-medium" type="password" name="password" placeholder="Password" required style="border-radius: 10px;">
+                <span class="icon is-left"><i class="fas fa-lock"></i></span>
+            </div>
+        </div>
+
+        <button class="button is-link is-fullwidth login-btn mb-4">LOGIN</button>
+
+        <div class="has-text-centered mb-5">
+            <a href="{{ url_for('forgot_password') }}" class="is-size-7 has-text-grey">Forgot Password?</a>
+        </div>
+
+        <hr style="height: 1px; background-color: #eee;">
+        <p class="has-text-centered is-size-7 mb-4 has-text-grey">Register as:</p>
+
+        <div class="columns is-mobile is-multiline">
+            <div class="column is-6">
+                <a href="{{ url_for('register', role='student') }}" class="register-option">Student</a>
+            </div>
+            <div class="column is-6">
+                <a href="{{ url_for('register', role='principal') }}" class="register-option">Principal</a>
+            </div>
+            <div class="column is-6">
+                <a href="{{ url_for('register', role='warden') }}" class="register-option">Warden</a>
+            </div>
+            <div class="column is-6">
+                <a href="{{ url_for('register', role='guardian') }}" class="register-option">Guardian</a>
+            </div>
+        </div>
     </form>
-    <p style="text-align:center; margin-top:10px;">
-    <a href="/forgot_password">Forgot Password?</a>
-</p>
-
-    <p style="margin-bottom: 5px;">Register as:</p>
-    <div class="register-buttons">
-        <a href="/register/student" class="register-btn">Student</a>
-        <a href="/register/principal" class="register-btn">Principal</a>
-        <a href="/register/warden" class="register-btn">Warden</a>
-        <a href="/register/guardian" class="register-btn">Guardian</a>
-    </div>
-
 </div>
 
 </body>

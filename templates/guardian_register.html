@@ -1,31 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Guardian Registration</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DormSync | Guardian Registration</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {font-family: Arial; margin:50px auto; max-width:400px; background:white; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-        input, select, button {width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:5px; box-sizing:border-box;}
-        button {background:#2196F3; color:white; border:none; cursor:pointer; font-size:16px;}
-        .flash {padding:12px; margin:10px 0; border-radius:5px;}
+        /* 1. ANIMATED MOVING BACKGROUND */
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            background: linear-gradient(-45deg, #4b6cb7, #182848, #6a11cb, #2575fc);
+            background-size: 400% 400%;
+            animation: gradientFlow 10s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* 2. ENTRANCE ANIMATION FOR THE CARD */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .register-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(15px);
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            animation: slideUpFade 0.8s ease-out forwards;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .title {
+            color: #1a2a6c;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 2rem !important;
+        }
+
+        .input {
+            border-radius: 12px;
+            border: 2px solid #eee;
+            transition: 0.3s;
+        }
+
+        .input:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 15px rgba(106, 17, 203, 0.2);
+        }
+
+        /* 3. SHIMMER BUTTON ANIMATION */
+        .button.is-link {
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            border-radius: 12px;
+            font-weight: 700;
+            height: 3.5rem;
+            border: none;
+            transition: 0.4s;
+        }
+
+        .button.is-link:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 20px rgba(106, 17, 203, 0.3);
+        }
     </style>
 </head>
 <body>
-<h2>👤 Guardian Registration</h2>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-    {% for category, message in messages %}
-        <div class="flash {{category}}">{{message}}</div>
-    {% endfor %}
-{% endif %}
-{% endwith %}
+<div class="register-card">
+    <h1 class="title is-3">Guardian Registration</h1>
 
-<form method="POST">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <input type="text" name="college" placeholder="College">
-    <button>Register</button>
-</form>
-<p><a href="{{ url_for('login') }}">Back to Login</a></p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="notification is-{{ 'danger' if category == 'error' else 'success' }} is-light is-size-7 py-2 px-3 mb-4">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+    <form method="POST">
+        <div class="field">
+            <div class="control has-icons-left">
+                <input class="input is-medium" type="text" name="username" placeholder="Username" required>
+                <span class="icon is-left"><i class="fas fa-user"></i></span>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="control has-icons-left">
+                <input class="input is-medium" type="email" name="email" placeholder="Email" required>
+                <span class="icon is-left"><i class="fas fa-envelope"></i></span>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="control has-icons-left">
+                <input class="input is-medium" type="text" name="phone" placeholder="Phone Number" required>
+                <span class="icon is-left"><i class="fas fa-phone"></i></span>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="control has-icons-left">
+                <input class="input is-medium" type="password" name="password" placeholder="Password" required>
+                <span class="icon is-left"><i class="fas fa-lock"></i></span>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="control has-icons-left">
+                <input class="input is-medium" type="text" name="college" placeholder="Student's College Name" required>
+                <span class="icon is-left"><i class="fas fa-university"></i></span>
+            </div>
+        </div>
+
+        <div class="field mt-5">
+            <button type="submit" class="button is-link is-fullwidth">
+                REGISTER NOW
+            </button>
+        </div>
+
+        <p class="has-text-centered mt-4 is-size-7">
+            Already registered? <a href="{{ url_for('login') }}" class="has-text-weight-bold">Sign In</a>
+        </p>
+    </form>
+</div>
+
 </body>
 </html>

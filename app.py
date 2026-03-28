@@ -502,6 +502,27 @@ def warden_attendance():
     flash("Attendance marked!")
     return redirect("/warden")
 
+# ---------------- GUARDIAN DASHBOARD ----------------
+@app.route("/guardian")
+def guardian():
+    if session.get("role") != "guardian":
+        return redirect("/")
+
+    db = get_db()
+    
+    # Fetch attendance of students in the same college
+    attendance = db.execute("""
+        SELECT u.username, a.date, a.status 
+        FROM attendance a
+        JOIN users u ON a.student_id = u.id
+        WHERE u.college = ?
+        ORDER BY a.date DESC
+    """, (session["college"],)).fetchall()
+    
+    db.close()
+    return render_template("guardian_dashboard.html", attendance=attendance)
+
+
 # ---------------- Forgot password ----------------
 # ---------------- Forgot password ----------------
 import random
@@ -534,13 +555,28 @@ def forgot_password():
                 error="No account found with this email or mobile number"
             )
 
+        if not user["email"]:
+            db.close()
+            return render_template(
+                "forgot_password.html",
+                error="No email address is linked to this account. Cannot send OTP."
+            )
+
         otp = random.randint(100000, 999999)
 
         session["reset_otp"] = str(otp)
         session["reset_uid"] = user["id"]
         session["otp_time"] = time.time()
 
-        send_otp_email(user["email"], otp)
+        try:
+            send_otp_email(user["email"], otp)
+        except Exception as e:
+            print(f"Email Error: {e}")
+            db.close()
+            return render_template(
+                "forgot_password.html",
+                error="Mail server issue: Failed to send OTP email."
+            )
 
         db.close()
         return render_template("verify_otp.html")

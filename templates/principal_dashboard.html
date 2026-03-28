@@ -2,124 +2,236 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Principal Dashboard</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DormSync | Principal Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* 1. SYNCHRONIZED BACKGROUND */
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: url("{{ url_for('static', filename='images/image.png') }}") no-repeat center center fixed;
-            background-size: cover;
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: linear-gradient(-45deg, #4b6cb7, #182848, #6a11cb, #2575fc);
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        .container {
-            background: rgba(255, 255, 255, 0.95);
+        /* 2. SMOOTH ENTRANCE */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        /* Staggered animation classes */
+        .delay-1 { animation: fadeInUp 0.8s ease-out 0.1s both; }
+        .delay-2 { animation: fadeInUp 0.8s ease-out 0.2s both; }
+        .delay-3 { animation: fadeInUp 0.8s ease-out 0.3s both; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(5px);
-            padding: 25px;
-            border-radius: 8px;
-            width: 420px;
-        }
-
-        h2, h3 {
+            border-radius: 15px;
+            padding: 1.5rem;
             text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        button {
-            padding: 6px 12px;
-            margin-top: 6px;
-            cursor: pointer;
+        .table {
+            background: transparent;
+            color: #333;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-action {
             border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: 0.3s;
+            padding-left: 1em;
+            padding-right: 1em;
+        }
+        
+        .btn-approve {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+        }
+
+        .btn-reject {
+            background: linear-gradient(to right, #ff5f6d, #ffc371);
+        }
+
+        .btn-action:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             color: white;
         }
 
-        .approve {
-            background: green;
-        }
-
-        .reject {
-            background: red;
-        }
-
-        .box {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 5px;
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        .logout {
-            text-align: center;
-            margin-top: 15px;
+        .is-empty td {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
         }
     </style>
 </head>
-
 <body>
 
-<div class="container">
+<div class="container dashboard-container">
+    
+    <div class="header-flex">
+        <h1 class="title is-2 has-text-white" style="text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+            <i class="fas fa-user-tie mr-2"></i>Principal Dashboard
+        </h1>
+        <a href="{{ url_for('logout') }}" class="button is-danger is-light is-rounded">
+            <span class="icon"><i class="fas fa-power-off"></i></span>
+            <span>Logout</span>
+        </a>
+    </div>
 
-    <h2>Principal Dashboard ({{ session.college }})</h2>
-    <p style="text-align:center; font-weight:bold; color:#555;">Total Approved Students: {{ student_count }}</p>
-
-    <hr>
-
-    <!-- ================= PENDING USERS ================= -->
-    <h3>Pending Students / Wardens</h3>
-
-    {% for u in students %}
-        <div class="box">
-            <b>{{ u.username }} ({{ u.role }})</b><br>
-
-            {% if u.id_card %}
-                <a href="/static/uploads/{{ u.id_card }}" target="_blank">
-                    View ID Card
-                </a><br>
-            {% endif %}
-
-            <a href="/principal/approve_user/{{ u.id }}">
-                <button class="approve">Approve</button>
-            </a>
-
-            <a href="/principal/reject_user/{{ u.id }}">
-                <button class="reject">Reject</button>
-            </a>
+    <div class="columns mb-5 delay-1">
+        <div class="column is-4">
+            <div class="stat-box">
+                <p class="heading">Total Approved Students</p>
+                <p class="title is-1 has-text-white">{{ student_count }}</p>
+            </div>
         </div>
-    {% else %}
-        <p style="text-align:center;">No pending user requests</p>
-    {% endfor %}
-
-    <hr>
-
-    <!-- ================= HOSTEL APPLICATIONS ================= -->
-    <h3>Pending Hostel Applications</h3>
-
-    {% for a in apps %}
-        <div class="box">
-            <b>Student:</b> {{ a.username }} <br>
-            <b>Hostel:</b> {{ a.name }} <br>
-            <b>Applied Room:</b> {{ a.room_number }} <br>
-
-            <a href="/principal/approve_hostel/{{ a.id }}">
-                <button class="approve">Approve</button>
-            </a>
+        <div class="column is-8">
+             <div class="stat-box" style="text-align: left; padding: 2rem;">
+                <p class="heading">College</p>
+                <p class="title is-2 has-text-white">{{ session.college }}</p>
+            </div>
         </div>
-    {% else %}
-        <p style="text-align:center;">No pending hostel requests</p>
-    {% endfor %}
+    </div>
 
-    <hr>
+    <div class="columns delay-2">
+        <div class="column is-12">
+            <div class="glass-card">
+                <h3 class="subtitle is-4 has-text-weight-bold">
+                    <span class="icon has-text-warning mr-2"><i class="fas fa-user-clock"></i></span>Pending User Approvals
+                </h3>
+                
+                <div class="table-container">
+                    <table class="table is-fullwidth is-hoverable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th class="has-text-centered">ID Card</th>
+                                <th class="has-text-centered">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if students %}
+                                {% for u in students %}
+                                <tr>
+                                    <td><strong>{{ u.username }}</strong></td>
+                                    <td><span class="tag is-info is-light">{{ u.role }}</span></td>
+                                    <td class="has-text-centered">
+                                        {% if u.id_card %}
+                                            <a href="/static/uploads/{{ u.id_card }}" target="_blank" class="button is-small is-link is-light">
+                                                <span class="icon"><i class="fas fa-id-card"></i></span>
+                                                <span>View</span>
+                                            </a>
+                                        {% else %}
+                                            <span class="tag is-light">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="has-text-centered">
+                                        <div class="buttons is-centered">
+                                            <a href="/principal/approve_user/{{ u.id }}" class="button is-small btn-action btn-approve">Approve</a>
+                                            <a href="/principal/reject_user/{{ u.id }}" class="button is-small btn-action btn-reject">Reject</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr class="is-empty">
+                                    <td colspan="4" class="has-text-centered has-text-grey py-5">
+                                        No pending user approvals.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- ================= LOGOUT ================= -->
-    <div class="logout">
-        <a href="/logout">Logout</a>
+    <div class="columns delay-3">
+        <div class="column is-12">
+            <div class="glass-card">
+                <h3 class="subtitle is-4 has-text-weight-bold">
+                    <span class="icon has-text-info mr-2"><i class="fas fa-bed"></i></span>Pending Hostel Applications
+                </h3>
+                
+                <div class="table-container">
+                    <table class="table is-fullwidth is-hoverable">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Hostel</th>
+                                <th>Applied for Room</th>
+                                <th class="has-text-centered">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if apps %}
+                                {% for a in apps %}
+                                <tr>
+                                    <td><strong>{{ a.username }}</strong></td>
+                                    <td>{{ a.name }}</td>
+                                    <td><span class="tag is-link">{{ a.room_number }}</span></td>
+                                    <td class="has-text-centered">
+                                        <a href="/principal/approve_hostel/{{ a.id }}" class="button is-small btn-action btn-approve">
+                                            <span class="icon"><i class="fas fa-check"></i></span>
+                                            <span>Approve Request</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr class="is-empty">
+                                    <td colspan="4" class="has-text-centered has-text-grey py-5">
+                                        No pending hostel applications.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
